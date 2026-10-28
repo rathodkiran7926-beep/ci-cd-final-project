@@ -1,0 +1,319 @@
+﻿2026-10-28T15:44:47.4143131Z Current runner version: '2.338.0'
+2026-10-28T15:44:47.4162505Z ##[group]Runner Image Provisioner
+2026-10-28T15:44:47.4163201Z Hosted Compute Agent
+2026-10-28T15:44:47.4163607Z Version: 20261021.618
+2026-10-28T15:44:47.4164020Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-28T15:44:47.4164556Z Build Date: 2026-10-21T00:45:21Z
+2026-10-28T15:44:47.4165002Z Worker ID: {91d51331-088e-434c-a0ea-2d1b11bceb19}
+2026-10-28T15:44:47.4165479Z Region: centralus
+2026-10-28T15:44:47.4165893Z Cloud: Azure
+2026-10-28T15:44:47.4166241Z ##[endgroup]
+2026-10-28T15:44:47.4168018Z ##[group]Operating System
+2026-10-28T15:44:47.4168444Z Ubuntu
+2026-10-28T15:44:47.4168805Z 26.04.1
+2026-10-28T15:44:47.4169168Z LTS
+2026-10-28T15:44:47.4169515Z ##[endgroup]
+2026-10-28T15:44:47.4169992Z ##[group]Runner Image
+2026-10-28T15:44:47.4170442Z Image: ubuntu-26.04
+2026-10-28T15:44:47.4170842Z Version: 20261025.179.1
+2026-10-28T15:44:47.4172049Z Included Software: https://github.com/actions/runner-images/blob/ubuntu26/20261025.179/images/ubuntu/Ubuntu2604-Readme.md
+2026-10-28T15:44:47.4173472Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu26%2F20261025.179
+2026-10-28T15:44:47.4174347Z ##[endgroup]
+2026-10-28T15:44:47.4175846Z ##[group]GITHUB_TOKEN Permissions
+2026-10-28T15:44:47.4178038Z Contents: read
+2026-10-28T15:44:47.4178638Z Metadata: read
+2026-10-28T15:44:47.4179141Z ##[endgroup]
+2026-10-28T15:44:47.4180834Z Secret source: Actions
+2026-10-28T15:44:47.4181909Z Cache mode: write
+2026-10-28T15:44:47.4182677Z Prepare workflow directory
+2026-10-28T15:44:47.4497172Z Prepare all required actions
+2026-10-28T15:44:47.4533507Z Getting action download info
+2026-10-28T15:44:47.7050220Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-28T15:44:47.8181058Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+2026-10-28T15:44:47.9070246Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-28T15:44:48.1062532Z Complete job name: build-and-test
+2026-10-28T15:44:48.1466689Z ##[group]Checking docker version
+2026-10-28T15:44:48.1476361Z ##[command]/usr/bin/docker version --format '{{.Server.APIVersion}}'
+2026-10-28T15:44:48.2374829Z '1.54'
+2026-10-28T15:44:48.2387267Z Docker daemon API version: '1.54'
+2026-10-28T15:44:48.2387941Z ##[command]/usr/bin/docker version --format '{{.Client.APIVersion}}'
+2026-10-28T15:44:48.2528886Z '1.54'
+2026-10-28T15:44:48.2536771Z Docker client API version: '1.54'
+2026-10-28T15:44:48.2541934Z ##[endgroup]
+2026-10-28T15:44:48.2544003Z ##[group]Clean up resources from previous jobs
+2026-10-28T15:44:48.2547937Z ##[command]/usr/bin/docker ps --all --quiet --no-trunc --filter "label=15759d"
+2026-10-28T15:44:48.2677502Z ##[command]/usr/bin/docker network prune --force --filter "label=15759d"
+2026-10-28T15:44:48.2790537Z ##[endgroup]
+2026-10-28T15:44:48.2790956Z ##[group]Create local container network
+2026-10-28T15:44:48.2798527Z ##[command]/usr/bin/docker network create --label 15759d github_network_2cdbc550ec844599a8aaeabcabf19d13
+2026-10-28T15:44:48.3200669Z 7c1e519e095b8cf1fecfad4b4fa863877550924da9a50f6b51b9ea323ddbf3d2
+2026-10-28T15:44:48.3211155Z ##[endgroup]
+2026-10-28T15:44:48.3232113Z ##[group]Starting job container
+2026-10-28T15:44:48.3251209Z ##[command]/usr/bin/docker pull node:22-bookworm
+2026-10-28T15:44:48.8183369Z 22-bookworm: Pulling from library/node
+2026-10-28T15:44:49.0073335Z a4aa977c0d0e: Pulling fs layer
+2026-10-28T15:44:49.0074363Z 70a1fee6a9cd: Pulling fs layer
+2026-10-28T15:44:49.0075004Z 49dd0ae78313: Pulling fs layer
+2026-10-28T15:44:49.0075437Z c28c2f6c340d: Pulling fs layer
+2026-10-28T15:44:49.0075839Z 39f6da44c1d8: Pulling fs layer
+2026-10-28T15:44:49.0076328Z 4d2acb1ce6e6: Pulling fs layer
+2026-10-28T15:44:49.0076788Z 661ef7e1e7b1: Pulling fs layer
+2026-10-28T15:44:49.0077231Z 25f5fbc9dcfb: Pulling fs layer
+2026-10-28T15:44:49.1390235Z 39f6da44c1d8: Download complete
+2026-10-28T15:44:49.2434618Z 4d2acb1ce6e6: Download complete
+2026-10-28T15:44:49.2436113Z 70a1fee6a9cd: Download complete
+2026-10-28T15:44:49.3410414Z 55c954c9c6e7: Download complete
+2026-10-28T15:44:49.3430267Z 49dd0ae78313: Download complete
+2026-10-28T15:44:50.4386862Z 661ef7e1e7b1: Download complete
+2026-10-28T15:44:50.4396285Z 25f5fbc9dcfb: Download complete
+2026-10-28T15:44:50.4402111Z 03d6194d1d87: Download complete
+2026-10-28T15:44:50.4405033Z a4aa977c0d0e: Download complete
+2026-10-28T15:44:51.7386915Z c28c2f6c340d: Download complete
+2026-10-28T15:44:51.7455305Z a4aa977c0d0e: Pull complete
+2026-10-28T15:44:51.9422864Z 49dd0ae78313: Pull complete
+2026-10-28T15:44:52.8433420Z 661ef7e1e7b1: Pull complete
+2026-10-28T15:44:55.1429320Z c28c2f6c340d: Pull complete
+2026-10-28T15:44:55.2407035Z 4d2acb1ce6e6: Pull complete
+2026-10-28T15:44:56.0388999Z 39f6da44c1d8: Pull complete
+2026-10-28T15:44:56.0400397Z 70a1fee6a9cd: Pull complete
+2026-10-28T15:44:56.0404715Z 25f5fbc9dcfb: Pull complete
+2026-10-28T15:44:56.0431913Z Digest: sha256:78bc820a7a6148e8c48731eca18dbb9b6b2c05ac4a52138479be565f2831682d
+2026-10-28T15:44:56.0433276Z Status: Downloaded newer image for node:22-bookworm
+2026-10-28T15:44:56.0438173Z docker.io/library/node:22-bookworm
+2026-10-28T15:44:56.0530991Z ##[command]/usr/bin/docker create --name c9e12e5fb11347d5a1ea5d61feff90ed_node22bookworm_db4625 --label 15759d --workdir /__w/ci-cd-final-project/ci-cd-final-project --network github_network_2cdbc550ec844599a8aaeabcabf19d13  -e "HOME=/github/home" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work":"/__w" -v "/home/runner/actions-runner/cached/2.338.0/externals":"/__e":ro -v "/home/runner/work/_temp":"/__w/_temp" -v "/home/runner/work/_actions":"/__w/_actions" -v "/opt/hostedtoolcache":"/__t" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" --entrypoint "tail" node:22-bookworm "-f" "/dev/null"
+2026-10-28T15:45:03.2387606Z 0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a
+2026-10-28T15:45:03.2408606Z ##[command]/usr/bin/docker start 0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a
+2026-10-28T15:45:03.4042146Z 0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a
+2026-10-28T15:45:03.4058528Z ##[command]/usr/bin/docker ps --all --filter id=0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a --filter status=running --no-trunc --format "{{.ID}} {{.Status}}"
+2026-10-28T15:45:03.4278797Z 0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a Up Less than a second
+2026-10-28T15:45:03.4294955Z ##[command]/usr/bin/docker inspect --format "{{range .Config.Env}}{{println .}}{{end}}" 0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a
+2026-10-28T15:45:03.4423081Z HOME=/github/home
+2026-10-28T15:45:03.4423585Z GITHUB_ACTIONS=true
+2026-10-28T15:45:03.4424034Z CI=true
+2026-10-28T15:45:03.4424388Z PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+2026-10-28T15:45:03.4425978Z NODE_VERSION=22.23.4
+2026-10-28T15:45:03.4426604Z YARN_VERSION=1.22.22
+2026-10-28T15:45:03.4438819Z ##[endgroup]
+2026-10-28T15:45:03.4447471Z ##[group]Waiting for all services to be ready
+2026-10-28T15:45:03.4449219Z ##[endgroup]
+2026-10-28T15:45:03.4709135Z ##[group]Run actions/checkout@v4
+2026-10-28T15:45:03.4709667Z with:
+2026-10-28T15:45:03.4709979Z   repository: rathodkiran7926-beep/ci-cd-final-project
+2026-10-28T15:45:03.4712604Z   token: ***
+2026-10-28T15:45:03.4712881Z   ssh-strict: true
+2026-10-28T15:45:03.4713116Z   ssh-user: git
+2026-10-28T15:45:03.4713403Z   persist-credentials: true
+2026-10-28T15:45:03.4713677Z   clean: true
+2026-10-28T15:45:03.4713954Z   sparse-checkout-cone-mode: true
+2026-10-28T15:45:03.4714280Z   fetch-depth: 1
+2026-10-28T15:45:03.4714521Z   fetch-tags: false
+2026-10-28T15:45:03.4714845Z   show-progress: true
+2026-10-28T15:45:03.4715097Z   lfs: false
+2026-10-28T15:45:03.4715351Z   submodules: false
+2026-10-28T15:45:03.4715646Z   set-safe-directory: true
+2026-10-28T15:45:03.4715963Z   allow-unsafe-pr-checkout: false
+2026-10-28T15:45:03.4716651Z ##[endgroup]
+2026-10-28T15:45:03.4771921Z ##[command]/usr/bin/docker exec  0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a sh -c "cat /etc/*release | grep ^ID"
+2026-10-28T15:45:03.7895264Z Syncing repository: rathodkiran7926-beep/ci-cd-final-project
+2026-10-28T15:45:03.7897477Z ##[group]Getting Git version info
+2026-10-28T15:45:03.7898173Z Working directory is '/__w/ci-cd-final-project/ci-cd-final-project'
+2026-10-28T15:45:03.7899021Z [command]/usr/bin/git version
+2026-10-28T15:45:03.7899364Z git version 2.39.5
+2026-10-28T15:45:03.7900620Z ##[endgroup]
+2026-10-28T15:45:03.7905699Z Temporarily overriding HOME='/__w/_temp/cdd8e12c-7445-4172-b838-98ab241da129' before making global git config changes
+2026-10-28T15:45:03.7906511Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T15:45:03.7907174Z [command]/usr/bin/git config --global --add safe.directory /__w/ci-cd-final-project/ci-cd-final-project
+2026-10-28T15:45:03.7930056Z Deleting the contents of '/__w/ci-cd-final-project/ci-cd-final-project'
+2026-10-28T15:45:03.7933668Z ##[group]Initializing the repository
+2026-10-28T15:45:03.7936805Z [command]/usr/bin/git init /__w/ci-cd-final-project/ci-cd-final-project
+2026-10-28T15:45:03.7960649Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-28T15:45:03.7961157Z hint: is subject to change. To configure the initial branch name to use in all
+2026-10-28T15:45:03.7961882Z hint: of your new repositories, which will suppress this warning, call:
+2026-10-28T15:45:03.7962246Z hint: 
+2026-10-28T15:45:03.7962556Z hint: 	git config --global init.defaultBranch <name>
+2026-10-28T15:45:03.7962843Z hint: 
+2026-10-28T15:45:03.7963134Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-28T15:45:03.7963558Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-28T15:45:03.7963899Z hint: 
+2026-10-28T15:45:03.7974202Z hint: 	git branch -m <name>
+2026-10-28T15:45:03.7974818Z Initialized empty Git repository in /__w/ci-cd-final-project/ci-cd-final-project/.git/
+2026-10-28T15:45:03.7982082Z [command]/usr/bin/git remote add origin https://github.com/rathodkiran7926-beep/ci-cd-final-project
+2026-10-28T15:45:03.8014804Z ##[endgroup]
+2026-10-28T15:45:03.8015412Z ##[group]Disabling automatic garbage collection
+2026-10-28T15:45:03.8015826Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-28T15:45:03.8036882Z ##[endgroup]
+2026-10-28T15:45:03.8037755Z ##[group]Setting up auth
+2026-10-28T15:45:03.8040888Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T15:45:03.8061292Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T15:45:03.8219963Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T15:45:03.8240767Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T15:45:03.8400911Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T15:45:03.8423124Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T15:45:03.8573164Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-28T15:45:03.8608089Z ##[endgroup]
+2026-10-28T15:45:03.8608722Z ##[group]Fetching the repository
+2026-10-28T15:45:03.8617989Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +a6ac9fd05f0da2cc81c8c0b4f8b5b9ab90fd2730:refs/remotes/origin/main
+2026-10-28T15:45:04.8946014Z From https://github.com/rathodkiran7926-beep/ci-cd-final-project
+2026-10-28T15:45:04.8947293Z  * [new ref]         a6ac9fd05f0da2cc81c8c0b4f8b5b9ab90fd2730 -> origin/main
+2026-10-28T15:45:04.8963763Z ##[endgroup]
+2026-10-28T15:45:04.8964338Z ##[group]Determining the checkout info
+2026-10-28T15:45:04.8964928Z ##[endgroup]
+2026-10-28T15:45:04.8979531Z [command]/usr/bin/git sparse-checkout disable
+2026-10-28T15:45:04.9015733Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-28T15:45:04.9037490Z ##[group]Checking out the ref
+2026-10-28T15:45:04.9040515Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-28T15:45:04.9088933Z Switched to a new branch 'main'
+2026-10-28T15:45:04.9089795Z branch 'main' set up to track 'origin/main'.
+2026-10-28T15:45:04.9095996Z ##[endgroup]
+2026-10-28T15:45:04.9119992Z [command]/usr/bin/git log -1 --format=%H
+2026-10-28T15:45:04.9137602Z a6ac9fd05f0da2cc81c8c0b4f8b5b9ab90fd2730
+2026-10-28T15:45:04.9525555Z ##[group]Run actions/setup-node@v4
+2026-10-28T15:45:04.9525847Z with:
+2026-10-28T15:45:04.9526091Z   node-version: 22
+2026-10-28T15:45:04.9526336Z   cache: npm
+2026-10-28T15:45:04.9526572Z   always-auth: false
+2026-10-28T15:45:04.9526847Z   check-latest: false
+2026-10-28T15:45:04.9529133Z   token: ***
+2026-10-28T15:45:04.9529375Z ##[endgroup]
+2026-10-28T15:45:04.9537796Z ##[command]/usr/bin/docker exec  0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a sh -c "cat /etc/*release | grep ^ID"
+2026-10-28T15:45:05.1586975Z Found in cache @ /__t/node/22.23.4/x64
+2026-10-28T15:45:05.1587955Z (node:143) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-28T15:45:05.1588798Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-28T15:45:05.1590301Z ##[group]Environment details
+2026-10-28T15:45:05.4766068Z node: v22.23.4
+2026-10-28T15:45:05.4766527Z npm: 10.9.9
+2026-10-28T15:45:05.4767097Z yarn: 1.22.22
+2026-10-28T15:45:05.4767970Z ##[endgroup]
+2026-10-28T15:45:05.4779892Z [command]/__t/node/22.23.4/x64/bin/npm config get cache
+2026-10-28T15:45:05.5575470Z /github/home/.npm
+2026-10-28T15:45:05.7093254Z npm cache is not found
+2026-10-28T15:45:05.7269890Z ##[group]Run npm ci
+2026-10-28T15:45:05.7270189Z [36;1mnpm ci[0m
+2026-10-28T15:45:05.7273656Z shell: sh -e {0}
+2026-10-28T15:45:05.7273897Z ##[endgroup]
+2026-10-28T15:45:07.9705170Z npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+2026-10-28T15:45:08.3738425Z npm warn deprecated eslint@9.39.5: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+2026-10-28T15:45:08.7689799Z 
+2026-10-28T15:45:08.7690788Z added 348 packages, and audited 349 packages in 3s
+2026-10-28T15:45:08.7691180Z 
+2026-10-28T15:45:08.7691720Z 66 packages are looking for funding
+2026-10-28T15:45:08.7692268Z   run `npm fund` for details
+2026-10-28T15:45:08.7782772Z 
+2026-10-28T15:45:08.7784108Z 5 low severity vulnerabilities
+2026-10-28T15:45:08.7785000Z 
+2026-10-28T15:45:08.7785961Z To address issues that do not require attention, run:
+2026-10-28T15:45:08.7786410Z   npm audit fix
+2026-10-28T15:45:08.7786739Z 
+2026-10-28T15:45:08.7787004Z To address all issues (including breaking changes), run:
+2026-10-28T15:45:08.7787424Z   npm audit fix --force
+2026-10-28T15:45:08.7787709Z 
+2026-10-28T15:45:08.7787873Z Run `npm audit` for details.
+2026-10-28T15:45:08.8121047Z ##[group]Run npm run lint
+2026-10-28T15:45:08.8121311Z [36;1mnpm run lint[0m
+2026-10-28T15:45:08.8121940Z shell: sh -e {0}
+2026-10-28T15:45:08.8122175Z ##[endgroup]
+2026-10-28T15:45:08.9295848Z 
+2026-10-28T15:45:08.9296491Z > ci-cd-final-project@1.0.0 lint
+2026-10-28T15:45:08.9296955Z > eslint .
+2026-10-28T15:45:08.9297104Z 
+2026-10-28T15:45:09.1242196Z ##[group]Run npm test
+2026-10-28T15:45:09.1242479Z [36;1mnpm test[0m
+2026-10-28T15:45:09.1242962Z shell: sh -e {0}
+2026-10-28T15:45:09.1243200Z ##[endgroup]
+2026-10-28T15:45:09.2267996Z 
+2026-10-28T15:45:09.2268700Z > ci-cd-final-project@1.0.0 test
+2026-10-28T15:45:09.2269093Z > jest --runInBand --coverage
+2026-10-28T15:45:09.2269261Z 
+2026-10-28T15:45:09.6511342Z   console.log
+2026-10-28T15:45:09.6512008Z     GET /
+2026-10-28T15:45:09.6512183Z 
+2026-10-28T15:45:09.6512410Z       at Server.log (src/app.js:6:13)
+2026-10-28T15:45:09.6512627Z 
+2026-10-28T15:45:09.6616032Z   console.log
+2026-10-28T15:45:09.6616602Z     GET /health
+2026-10-28T15:45:09.6616950Z 
+2026-10-28T15:45:09.6617279Z       at Server.log (src/app.js:6:13)
+2026-10-28T15:45:09.6617721Z 
+2026-10-28T15:45:09.6645311Z   console.log
+2026-10-28T15:45:09.6645769Z     GET /missing
+2026-10-28T15:45:09.6645919Z 
+2026-10-28T15:45:09.6646260Z       at Server.log (src/app.js:6:13)
+2026-10-28T15:45:09.6646536Z 
+2026-10-28T15:45:09.6690971Z   console.log
+2026-10-28T15:45:09.6691730Z     POST /
+2026-10-28T15:45:09.6691998Z 
+2026-10-28T15:45:09.6692287Z       at Server.log (src/app.js:6:13)
+2026-10-28T15:45:09.6692655Z 
+2026-10-28T15:45:09.6741091Z PASS tests/app.test.js
+2026-10-28T15:45:09.6742104Z   Application HTTP endpoints
+2026-10-28T15:45:09.6743742Z     ✓ GET / returns the project name and deployment details (26 ms)
+2026-10-28T15:45:09.6745234Z     ✓ GET /health reports readiness (4 ms)
+2026-10-28T15:45:09.6745899Z     ✓ unknown routes return 404 (3 ms)
+2026-10-28T15:45:09.6746416Z     ✓ unsupported methods return 405 with allowed methods (4 ms)
+2026-10-28T15:45:09.6746706Z 
+2026-10-28T15:45:09.6858772Z ----------|---------|----------|---------|---------|-------------------
+2026-10-28T15:45:09.6859712Z File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+2026-10-28T15:45:09.6860527Z ----------|---------|----------|---------|---------|-------------------
+2026-10-28T15:45:09.6863288Z All files |     100 |      100 |     100 |     100 |                   
+2026-10-28T15:45:09.6863976Z  app.js   |     100 |      100 |     100 |     100 |                   
+2026-10-28T15:45:09.6865257Z ----------|---------|----------|---------|---------|-------------------
+2026-10-28T15:45:09.6949361Z Test Suites: 1 passed, 1 total
+2026-10-28T15:45:09.6950293Z Tests:       4 passed, 4 total
+2026-10-28T15:45:09.6951649Z Snapshots:   0 total
+2026-10-28T15:45:09.6952531Z Time:        0.334 s
+2026-10-28T15:45:09.6952895Z Ran all test suites.
+2026-10-28T15:45:09.7945191Z ##[group]Run actions/upload-artifact@v4
+2026-10-28T15:45:09.7945491Z with:
+2026-10-28T15:45:09.7945727Z   name: jest-coverage
+2026-10-28T15:45:09.7945987Z   path: coverage/
+2026-10-28T15:45:09.7946218Z   if-no-files-found: error
+2026-10-28T15:45:09.7946498Z   compression-level: 6
+2026-10-28T15:45:09.7946773Z   overwrite: false
+2026-10-28T15:45:09.7947025Z   include-hidden-files: false
+2026-10-28T15:45:09.7947463Z ##[endgroup]
+2026-10-28T15:45:09.7951273Z ##[command]/usr/bin/docker exec  0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a sh -c "cat /etc/*release | grep ^ID"
+2026-10-28T15:45:10.0014234Z (node:303) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-28T15:45:10.0014913Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-28T15:45:10.0088067Z With the provided path, there will be 12 files uploaded
+2026-10-28T15:45:10.0089255Z Artifact name is valid!
+2026-10-28T15:45:10.0089810Z Root directory input is valid!
+2026-10-28T15:45:10.2809104Z Beginning upload of artifact content to blob storage
+2026-10-28T15:45:10.3087891Z (node:303) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-28T15:45:10.5090674Z Uploaded bytes 18121
+2026-10-28T15:45:10.5550205Z Finished uploading artifact content to blob storage!
+2026-10-28T15:45:10.5551663Z SHA256 digest of uploaded artifact zip is 03b7d776bc35d1acc2e084480fb79184323d3425f8c0dba421e14745f3b099a1
+2026-10-28T15:45:10.5552918Z Finalizing artifact upload
+2026-10-28T15:45:11.0244153Z Artifact jest-coverage.zip successfully finalized. Artifact ID 12830140579
+2026-10-28T15:45:11.0244946Z Artifact jest-coverage has been successfully uploaded! Final size is 18121 bytes. Artifact ID is 12830140579
+2026-10-28T15:45:11.0248592Z Artifact download URL: https://github.com/rathodkiran7926-beep/ci-cd-final-project/actions/runs/40719043994/artifacts/12830140579
+2026-10-28T15:45:11.0433894Z Post job cleanup.
+2026-10-28T15:45:11.0441326Z ##[command]/usr/bin/docker exec  0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a sh -c "cat /etc/*release | grep ^ID"
+2026-10-28T15:45:11.2279817Z (node:328) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-28T15:45:11.2280447Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-28T15:45:11.2414440Z [command]/usr/bin/tar --posix -cf cache.tgz --exclude cache.tgz -P -C /__w/ci-cd-final-project/ci-cd-final-project --files-from manifest.txt -z
+2026-10-28T15:45:11.7519155Z (node:328) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-28T15:45:12.4619056Z Sent 12209040 of 12209040 (100.0%), 16.2 MBs/sec
+2026-10-28T15:45:12.6780212Z Cache saved with the key: node-cache-Linux-x64-npm-f984c219b7630efbce4a2f7094b2fe82dc67f07afcbcc8d013327a8e6a6733f6
+2026-10-28T15:45:12.6914444Z Post job cleanup.
+2026-10-28T15:45:12.6922414Z ##[command]/usr/bin/docker exec  0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a sh -c "cat /etc/*release | grep ^ID"
+2026-10-28T15:45:12.8510115Z [command]/usr/bin/git version
+2026-10-28T15:45:12.8549224Z git version 2.39.5
+2026-10-28T15:45:12.8586579Z Temporarily overriding HOME='/__w/_temp/f1f7e42c-412b-4094-9df5-6a00e43dd21e' before making global git config changes
+2026-10-28T15:45:12.8587745Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-28T15:45:12.8591017Z [command]/usr/bin/git config --global --add safe.directory /__w/ci-cd-final-project/ci-cd-final-project
+2026-10-28T15:45:12.8623883Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-28T15:45:12.8654449Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-28T15:45:12.8840127Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-28T15:45:12.8859483Z http.https://github.com/.extraheader
+2026-10-28T15:45:12.8868969Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-28T15:45:12.8917632Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-28T15:45:12.9251892Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-28T15:45:12.9282396Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-28T15:45:12.9724213Z Stop and remove container: c9e12e5fb11347d5a1ea5d61feff90ed_node22bookworm_db4625
+2026-10-28T15:45:12.9729956Z ##[command]/usr/bin/docker rm --force 0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a
+2026-10-28T15:45:14.1209142Z 0b5df00f14e2d54c51f16a2ab3bde55638bc83a817bf46067ea7b2b5e73f928a
+2026-10-28T15:45:14.1232116Z Remove container network: github_network_2cdbc550ec844599a8aaeabcabf19d13
+2026-10-28T15:45:14.1235867Z ##[command]/usr/bin/docker network rm github_network_2cdbc550ec844599a8aaeabcabf19d13
+2026-10-28T15:45:14.1836441Z github_network_2cdbc550ec844599a8aaeabcabf19d13
+2026-10-28T15:45:14.1902674Z Cleaning up orphan processes
+2026-10-28T15:45:14.2179756Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
