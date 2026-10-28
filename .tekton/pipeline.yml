@@ -1,0 +1,46 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: oc-final
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: revision
+      type: string
+      default: main
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: cleanup
+      taskRef:
+        name: cleanup
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: clone
+      runAfter: [cleanup]
+      taskRef:
+        name: clone
+      params:
+        - name: repo-url
+          value: $(params.repo-url)
+        - name: revision
+          value: $(params.revision)
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: jest-test
+      runAfter: [clone]
+      taskRef:
+        name: jest-test
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: build-deploy
+      runAfter: [jest-test]
+      taskRef:
+        name: build-deploy
+      workspaces:
+        - name: source
+          workspace: shared-workspace

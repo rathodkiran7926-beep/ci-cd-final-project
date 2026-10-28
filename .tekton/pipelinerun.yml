@@ -1,0 +1,21 @@
+﻿apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: oc-final-
+spec:
+  pipelineRef:
+    name: oc-final
+  taskRunTemplate:
+    serviceAccountName: cicd-pipeline
+  params:
+    - name: repo-url
+      value: https://github.com/rathodkiran7926-beep/CI_CD_Final_Project.git
+    - name: revision
+      value: main
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: oc-pipelines-pvc
+  timeouts:
+    pipeline: 30m0s
+

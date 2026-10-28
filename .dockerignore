@@ -1,0 +1,10 @@
+node_modules
+coverage
+.git
+.github
+.tekton
+openshift
+evidence
+tests
+.env
+*.log

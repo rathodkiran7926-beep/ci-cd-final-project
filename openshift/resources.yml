@@ -1,0 +1,85 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: cicd-final-app
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: cicd-final-app
+spec:
+  source:
+    type: Binary
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: cicd-final-app:latest
+  triggers: []
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cicd-final-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cicd-final-app
+  template:
+    metadata:
+      labels:
+        app: cicd-final-app
+    spec:
+      containers:
+        - name: app
+          image: cicd-final-app:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cicd-final-app
+spec:
+  selector:
+    app: cicd-final-app
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: cicd-final-app
+spec:
+  to:
+    kind: Service
+    name: cicd-final-app
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

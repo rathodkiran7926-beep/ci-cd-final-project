@@ -1,0 +1,93 @@
+﻿apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: cleanup
+spec:
+  description: Remove only the checkout subdirectory from the shared PVC.
+  workspaces:
+    - name: source
+  steps:
+    - name: cleanup
+      image: node:22-alpine
+      env:
+        - name: SOURCE_PATH
+          value: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+        set -eu
+        node -e 'require("node:fs").rmSync(process.env.SOURCE_PATH + "/repo", {recursive: true, force: true})'
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: clone
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: revision
+      type: string
+      default: main
+  workspaces:
+    - name: source
+  steps:
+    - name: clone
+      image: alpine/git:2.47.2
+      env:
+        - name: REPO_URL
+          value: $(params.repo-url)
+        - name: REVISION
+          value: $(params.revision)
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+        set -eu
+        git clone --depth 1 --branch "$REVISION" -- "$REPO_URL" repo
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: jest-test
+spec:
+  workspaces:
+    - name: source
+  steps:
+    - name: install-lint-and-test
+      image: node:22-alpine
+      workingDir: $(workspaces.source.path)/repo
+      env:
+        - name: HOME
+          value: /tmp
+        - name: npm_config_cache
+          value: /tmp/npm-cache
+      script: |
+        #!/bin/sh
+        set -eu
+        npm ci
+        npm run lint
+        npm test
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: build-deploy
+spec:
+  description: Build using OpenShift's Docker strategy, deploy, and verify readiness.
+  workspaces:
+    - name: source
+  steps:
+    - name: build-deploy
+      image: quay.io/openshift/origin-cli:4.16
+      workingDir: $(workspaces.source.path)/repo
+      script: |
+        #!/bin/sh
+        set -eu
+        oc apply -f openshift/resources.yml
+        oc start-build cicd-final-app --from-dir=. --follow --wait
+        IMAGE="$(oc get imagestream cicd-final-app -o jsonpath='{.status.dockerImageRepository}')"
+        DIGEST="$(oc get imagestreamtag cicd-final-app:latest -o jsonpath='{.image.metadata.name}')"
+        oc set image deployment/cicd-final-app "app=$IMAGE@$DIGEST"
+        oc rollout status deployment/cicd-final-app --timeout=180s
+        oc get route cicd-final-app
+        oc logs deployment/cicd-final-app --tail=50
+
