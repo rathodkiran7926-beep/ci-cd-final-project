@@ -1,9 +1,13 @@
-﻿# Coursera CI/CD Final Project
+﻿# ci-cd-final-project
 
-A JavaScript HTTP service with continuous integration using GitHub Actions and a Tekton pipeline for OpenShift builds and deployment.
+**Project name: ci-cd-final-project**
 
-**Project name:** Coursera CI/CD Final Project  
-**Stack:** Node.js, ESLint, Jest, Docker, GitHub Actions, Tekton, OpenShift
+JavaScript CI/CD final project using GitHub Actions, ESLint, Jest, Tekton, Buildah, and OpenShift.
+
+- [Complete GitHub Actions workflow](.github/workflows/workflow.yml)
+- [Cleanup, Jest, clone, ESLint, and deploy task definitions](.tekton/tasks.yml)
+- [Six-task OpenShift pipeline](.tekton/pipeline.yml)
+- [Submission answers and evidence checklist](SUBMISSION.md)
 
 ## Run locally
 
@@ -16,30 +20,31 @@ npm test
 npm start
 ```
 
-Open http://localhost:8080/ for project details and http://localhost:8080/health for health status. Requests and startup messages are written to standard output for OpenShift application logs.
+Open http://localhost:8000/ or http://localhost:8000/health. On successful startup, the app writes `SERVICERUNNING` between its initialization message and its port 8000 listening message. PORT can override the default.
 
-## Add this folder to GitHub
+## GitHub Actions
 
-Create an empty public repository on GitHub. Run these commands from this folder, replacing the URL with your repository URL:
+A push, pull request, or manual dispatch starts `.github/workflows/workflow.yml`. The job runs inside `node:22-bookworm`, so GitHub Actions performs the actual **Initialize containers** lifecycle step. The job checks out source, sets up Node.js, installs dependencies, runs ESLint and Jest, and uploads coverage.
+
+## OpenShift lab deployment
+
+Use an authenticated course lab terminal. Prerequisites:
+
+- OpenShift Pipelines with `tekton.dev/v1` and the cluster resolver enabled.
+- The operator-provided `pipeline` service account and `buildah` Task in `openshift-pipelines`.
+- Buildah permissions and registry credentials configured for that service account by the course/operator. Do not grant blanket privileged access just to bypass a build error; use the lab's supported Buildah setup.
+- Storage class `skills-network-learner`, an internal image registry, and permission to create project resources and RoleBindings.
+
+Confirm the lab has these resources:
 
 ```sh
-git init -b main
-git add .
-git commit -m "Add CI/CD final project with GitHub Actions and Tekton"
-git remote add origin https://github.com/rathodkiran7926-beep/CI_CD_Final_Project.git
-git push -u origin main
+oc project YOUR_COURSE_PROJECT
+oc get storageclass skills-network-learner
+oc get serviceaccount pipeline
+oc get task buildah -n openshift-pipelines
 ```
 
-Include hidden folders `.github` and `.tekton` when uploading manually. Do not upload `node_modules` or `coverage`. The push starts `.github/workflows/workflow.yml`. Check the Actions tab for the actual result.
-
-## OpenShift setup and deployment
-
-Prerequisites: an authenticated `oc` CLI session, an OpenShift project with permission to create builds and RBAC resources, the OpenShift Pipelines operator with `tekton.dev/v1` support, a working internal image registry, and a default storage class. The cluster must permit outbound pulls from Docker Hub and Quay and npm package downloads. These manifests must be validated on your course cluster; they have not been run on a cluster here.
-
-1. Select your course project with `oc project YOUR_PROJECT`. If you are allowed to create a separate project, use `oc new-project coursera-cicd`.
-2. Replace `rathodkiran7926-beep/CI_CD_Final_Project` in `.tekton/pipelinerun.yml` with your public GitHub repository. Change `revision` if your default branch is not `main`.
-3. Commit and push the change.
-4. Apply the setup and start a run:
+If your course uses an older operator with a `buildah` ClusterTask, replace only the `buildah` taskRef in `.tekton/pipeline.yml` with `name: buildah` and `kind: ClusterTask`. Check its parameters and workspace against that installed task before running.
 
 ```sh
 oc apply -f openshift/setup.yml
@@ -48,32 +53,28 @@ oc apply -f .tekton/pipeline.yml
 oc create -f .tekton/pipelinerun.yml
 ```
 
-The pipeline is named `oc-final` and runs `cleanup -> clone -> jest-test -> build-deploy`. It uses the `oc-pipelines-pvc` volume for source files. Run only one PipelineRun at a time against this shared PVC. On storage using `WaitForFirstConsumer`, the PVC may remain Pending until the first pipeline pod starts.
+The task order is `cleanup -> git-clone -> eslint -> jest -> buildah -> deploy`. ESLint installs dependencies on the shared PVC, then Jest uses that installation. Buildah builds and pushes a uniquely tagged image using the operator's real Task. Deploy creates or updates deployment `cicd-app` with that image and checks rollout.
 
-The cleanup task removes only the `repo` directory inside its workspace. The Jest task installs dependencies, runs ESLint, and runs unit tests with a 100% coverage threshold for request handling. The final task submits a binary Docker build to OpenShift, updates the Deployment to the resulting image digest, waits for rollout, and prints the application logs. No privileged Tekton build container is needed; the cluster's build service performs the image build.
+The PVC is named `oc-lab-pvc`, requests `1Gi`, and explicitly uses `skills-network-learner`. Run only one PipelineRun at a time against this PVC. With delayed binding, its status may remain Pending until the first pipeline pod starts.
 
-Inspect the result (replace `RUN_NAME` with the name printed by `oc create`):
+Buildah uses TLSVERIFY=false only for the cluster-internal registry in this course configuration. Adapt this to the registry trust setup if your cluster requires TLS verification.
+
+Inspect the real results (substitute the generated run name):
 
 ```sh
 oc get pipelinerun RUN_NAME
-oc get pipelinerun RUN_NAME -o yaml
-oc get pvc oc-pipelines-pvc
-oc get builds
-oc get deployment cicd-final-app
-oc get route cicd-final-app
-oc logs deployment/cicd-final-app --tail=100
+oc get pvc oc-lab-pvc
+oc get deployment cicd-app
+oc get route cicd-app
+oc logs deployment/cicd-app | tee oc-pipeline-application-logs
 ```
 
-If `tkn` is installed, use `tkn pipelinerun logs RUN_NAME -f` to stream all task logs. Visit the HTTPS host printed by `oc get route cicd-final-app` and then collect application logs again to include real HTTP requests.
+If available, `tkn pipelinerun logs RUN_NAME -f` streams every task. If the pipeline fails, inspect task logs and `oc get events --sort-by=.lastTimestamp` rather than submitting a mocked success image.
 
-For troubleshooting, check PipelineRun task logs, `oc get events --sort-by=.lastTimestamp`, and the OpenShift build logs. Restricted lab permissions, registry configuration, image availability, or storage settings may require changes specific to your cluster.
+OpenShift manifests are prepared for the course lab but have not been run on a cluster from this workspace. See SUBMISSION.md for what remains to capture.
 
-## Assignment evidence
+## Documentation
 
-See [SUBMISSION.md](SUBMISSION.md) for the eight rubric items, URL formats, exact screenshot filenames, and instructions for capturing real outputs. No OpenShift screenshots, successful Actions output, or cluster logs have been fabricated.
-
-## References
-
-- [Tekton Pipeline specification](https://tekton.dev/docs/pipelines/pipelines/)
-- [OpenShift Pipelines security documentation](https://docs.redhat.com/en/documentation/red_hat_openshift_pipelines/1.21/html/securing_openshift_pipelines/index)
-
+- [GitHub container jobs](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/run-jobs-in-a-container)
+- [Tekton Pipelines](https://tekton.dev/docs/pipelines/pipelines/)
+- [OpenShift Pipelines security contexts](https://docs.redhat.com/en/documentation/red_hat_openshift_pipelines/1.21/html/securing_openshift_pipelines/configuring-security-context-for-pods)

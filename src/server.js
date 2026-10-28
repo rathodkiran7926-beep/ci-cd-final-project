@@ -1,9 +1,11 @@
 const { createServer } = require('./app');
 
-const port = Number(process.env.PORT || 8080);
+const port = Number(process.env.PORT || 8000);
 const server = createServer();
 server.listen(port, '0.0.0.0', () => {
-  console.log(`Coursera CI/CD Final Project listening on port ${port}`);
+  console.log("[INFO] Application initialized");
+  console.log("[INFO] SERVICERUNNING");
+  console.log(`[INFO] Listening on 0.0.0.0:${port}`);
 });
 
 function shutdown() {

@@ -1,29 +1,24 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: oc-pipelines-pvc
+  name: oc-lab-pvc
 spec:
+  storageClassName: skills-network-learner
   accessModes: [ReadWriteOnce]
   resources:
     requests:
       storage: 1Gi
 ---
-apiVersion: v1
-kind: ServiceAccount
+apiVersion: image.openshift.io/v1
+kind: ImageStream
 metadata:
-  name: cicd-pipeline
+  name: cicd-app
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: cicd-pipeline
+  name: cicd-deploy
 rules:
-  - apiGroups: ['build.openshift.io']
-    resources: [buildconfigs, buildconfigs/instantiatebinary, builds, builds/log]
-    verbs: [get, list, watch, create, update, patch]
-  - apiGroups: ['image.openshift.io']
-    resources: [imagestreams, imagestreamtags]
-    verbs: [get, list, watch, create, update, patch]
   - apiGroups: ['apps']
     resources: [deployments]
     verbs: [get, list, watch, create, update, patch]
@@ -37,11 +32,23 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: cicd-pipeline
+  name: cicd-deploy
 subjects:
   - kind: ServiceAccount
-    name: cicd-pipeline
+    name: pipeline
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: cicd-pipeline
+  name: cicd-deploy
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cicd-image-builder
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-builder

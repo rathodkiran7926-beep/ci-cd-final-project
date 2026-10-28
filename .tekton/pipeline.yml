@@ -9,6 +9,9 @@ spec:
     - name: revision
       type: string
       default: main
+    - name: registry
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000
   workspaces:
     - name: shared-workspace
   tasks:
@@ -18,10 +21,10 @@ spec:
       workspaces:
         - name: source
           workspace: shared-workspace
-    - name: clone
+    - name: git-clone
       runAfter: [cleanup]
       taskRef:
-        name: clone
+        name: git-clone
       params:
         - name: repo-url
           value: $(params.repo-url)
@@ -30,17 +33,51 @@ spec:
       workspaces:
         - name: source
           workspace: shared-workspace
-    - name: jest-test
-      runAfter: [clone]
+    - name: eslint
+      runAfter: [git-clone]
       taskRef:
-        name: jest-test
+        name: eslint
       workspaces:
         - name: source
           workspace: shared-workspace
-    - name: build-deploy
-      runAfter: [jest-test]
+    - name: jest
+      runAfter: [eslint]
       taskRef:
-        name: build-deploy
+        name: jest
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+    - name: buildah
+      runAfter: [jest]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: namespace
+            value: openshift-pipelines
+          - name: name
+            value: buildah
+      params:
+        - name: IMAGE
+          value: $(params.registry)/$(context.pipelineRun.namespace)/cicd-app:$(context.pipelineRun.name)
+        - name: CONTEXT
+          value: .
+        - name: DOCKERFILE
+          value: ./Dockerfile
+        - name: TLSVERIFY
+          value: 'false'
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+          subPath: repo
+    - name: deploy
+      runAfter: [buildah]
+      taskRef:
+        name: openshift-client
+      params:
+        - name: IMAGE
+          value: $(params.registry)/$(context.pipelineRun.namespace)/cicd-app:$(context.pipelineRun.name)
       workspaces:
         - name: source
           workspace: shared-workspace

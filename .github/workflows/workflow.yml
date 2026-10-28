@@ -11,6 +11,8 @@ permissions:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    container:
+      image: node:22-bookworm
     steps:
       - name: Checkout source
         uses: actions/checkout@v4

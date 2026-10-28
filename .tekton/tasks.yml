@@ -3,24 +3,48 @@ kind: Task
 metadata:
   name: cleanup
 spec:
-  description: Remove only the checkout subdirectory from the shared PVC.
   workspaces:
     - name: source
   steps:
-    - name: cleanup
-      image: node:22-alpine
+    - name: remove
+      image: alpine:3.21
       env:
-        - name: SOURCE_PATH
+        - name: WORKSPACE_SOURCE_PATH
           value: $(workspaces.source.path)
       script: |
         #!/bin/sh
         set -eu
-        node -e 'require("node:fs").rmSync(process.env.SOURCE_PATH + "/repo", {recursive: true, force: true})'
+        # Restrict deletion to this Task's mounted source workspace.
+        test "$WORKSPACE_SOURCE_PATH" = /workspace/source
+        rm -rf -- "$WORKSPACE_SOURCE_PATH"/* \
+          "$WORKSPACE_SOURCE_PATH"/.[!.]* \
+          "$WORKSPACE_SOURCE_PATH"/..?*
 ---
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: clone
+  name: jest
+spec:
+  workspaces:
+    - name: source
+  steps:
+    - name: jest
+      image: node:22-alpine
+      workingDir: $(workspaces.source.path)/repo
+      env:
+        - name: HOME
+          value: /tmp
+        - name: npm_config_cache
+          value: /tmp/npm-cache
+      script: |
+        #!/bin/sh
+        set -eu
+        npm test
+---
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: git-clone
 spec:
   params:
     - name: repo-url
@@ -31,14 +55,14 @@ spec:
   workspaces:
     - name: source
   steps:
-    - name: clone
+    - name: git-clone
       image: alpine/git:2.47.2
+      workingDir: $(workspaces.source.path)
       env:
         - name: REPO_URL
           value: $(params.repo-url)
         - name: REVISION
           value: $(params.revision)
-      workingDir: $(workspaces.source.path)
       script: |
         #!/bin/sh
         set -eu
@@ -47,12 +71,12 @@ spec:
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: jest-test
+  name: eslint
 spec:
   workspaces:
     - name: source
   steps:
-    - name: install-lint-and-test
+    - name: eslint
       image: node:22-alpine
       workingDir: $(workspaces.source.path)/repo
       env:
@@ -65,29 +89,32 @@ spec:
         set -eu
         npm ci
         npm run lint
-        npm test
 ---
 apiVersion: tekton.dev/v1
 kind: Task
 metadata:
-  name: build-deploy
+  name: openshift-client
 spec:
-  description: Build using OpenShift's Docker strategy, deploy, and verify readiness.
+  params:
+    - name: IMAGE
+      type: string
   workspaces:
     - name: source
   steps:
-    - name: build-deploy
+    - name: deploy
       image: quay.io/openshift/origin-cli:4.16
       workingDir: $(workspaces.source.path)/repo
+      env:
+        - name: IMAGE
+          value: $(params.IMAGE)
       script: |
         #!/bin/sh
         set -eu
+        # Apply the Deployment with the image built by this PipelineRun.
+        oc set image --local -f openshift/deployment.yml "app=$IMAGE" -o yaml > /tmp/deployment.yml
+        oc apply -f /tmp/deployment.yml
         oc apply -f openshift/resources.yml
-        oc start-build cicd-final-app --from-dir=. --follow --wait
-        IMAGE="$(oc get imagestream cicd-final-app -o jsonpath='{.status.dockerImageRepository}')"
-        DIGEST="$(oc get imagestreamtag cicd-final-app:latest -o jsonpath='{.image.metadata.name}')"
-        oc set image deployment/cicd-final-app "app=$IMAGE@$DIGEST"
-        oc rollout status deployment/cicd-final-app --timeout=180s
-        oc get route cicd-final-app
-        oc logs deployment/cicd-final-app --tail=50
-
+        oc rollout status deployment/cicd-app --timeout=180s
+        oc get deployment cicd-app
+        oc get route cicd-app
+        oc logs deployment/cicd-app --tail=100

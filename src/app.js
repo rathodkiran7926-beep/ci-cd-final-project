@@ -14,7 +14,7 @@ function createServer() {
     switch (request.url) {
       case '/':
         response.end(JSON.stringify({
-          project: 'Coursera CI/CD Final Project',
+          project: 'ci-cd-final-project',
           message: 'Deployed with GitHub Actions, Tekton, and OpenShift'
         }));
         break;

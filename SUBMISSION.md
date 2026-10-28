@@ -1,50 +1,55 @@
-﻿# Submission checklist
+﻿# Submission answers
 
-Replace `rathodkiran7926-beep/CI_CD_Final_Project` in the links below with the repository you create. Use `main` or your actual default branch. Submit evidence only after the corresponding run succeeds.
+## Question 1: README
 
-| Points | Required response | File or source |
-| --- | --- | --- |
-| 2 | Project README GitHub URL | `https://github.com/rathodkiran7926-beep/CI_CD_Final_Project/blob/main/README.md` |
-| 4 | ESLint and Jest workflow GitHub URL | `https://github.com/rathodkiran7926-beep/CI_CD_Final_Project/blob/main/.github/workflows/workflow.yml` |
-| 4 | Cleanup and Jest Tekton tasks GitHub URL | `https://github.com/rathodkiran7926-beep/CI_CD_Final_Project/blob/main/.tekton/tasks.yml` |
-| 2 | PVC details screenshot | `evidence/oc-pipelines-console-pvc-details.png` |
-| 2 | Successful GitHub Actions terminal output | `evidence/github-actions-success.txt` |
-| 2 | OpenShift pipeline details screenshot | `evidence/oc-pipelines-oc-final.png` |
-| 2 | Successful OpenShift pipeline screenshot | `evidence/oc-pipelines-oc-green.png` |
-| 2 | Actual application logs | `evidence/openshift-application-logs.txt` |
+https://github.com/rathodkiran7926-beep/ci-cd-final-project/blob/main/README.md
 
-## Screenshots from your OpenShift console
+Project name: ci-cd-final-project
 
-Select the project used for the run.
+The feedback inconsistently asks for the repository spelling cicd-final-project on Question 1 and ci-cd-final-project on Question 2. This repository uses its actual public canonical name ci-cd-final-project. If a correct, accessible link is rejected solely for that inconsistency, request a grading review with the feedback attached.
 
-1. Under Storage > PersistentVolumeClaims, open `oc-pipelines-pvc`. Capture its name, namespace, Bound status, access mode, capacity, and storage class. Save as `oc-pipelines-console-pvc-details.png`.
-2. Under Pipelines > Pipelines, open `oc-final`. Capture the name and task graph. Save as `oc-pipelines-oc-final.png`.
-3. Open the successful PipelineRun. Capture the run name, Succeeded status, and green task graph for all four tasks. Save as `oc-pipelines-oc-green.png`.
+## Question 2: complete workflow
 
-Console labels vary by OpenShift version. Keep the full relevant details visible. Do not use a local mockup as cluster evidence.
+https://github.com/rathodkiran7926-beep/ci-cd-final-project/blob/main/.github/workflows/workflow.yml
 
-## GitHub Actions terminal output
+This single file contains both the ESLint and Jest steps. Paste the URL and the complete workflow code into the response if the field permits code; the evaluator previously reported a truncated preview.
 
-After you push and the run succeeds, use GitHub CLI if installed:
+## Question 3: complete task definitions
+
+https://github.com/rathodkiran7926-beep/ci-cd-final-project/blob/main/.tekton/tasks.yml
+
+Paste this URL plus the complete cleanup and jest definitions from that file if code is permitted. The cleanup task has a remove step using WORKSPACE_SOURCE_PATH. The Jest task runs npm test after the ESLint task has installed dependencies on the shared PVC.
+
+## Question 4: successful GitHub Actions output
+
+Use the newly collected cicd-github-validate file after the corrected container job finishes successfully. It must include the real Initialize containers lifecycle step. Full raw logs are stored in evidence/github-actions-success.txt. Do not submit the old run as evidence of the corrected workflow.
+
+## Question 5: PersistentVolumeClaim screenshot
+
+Capture Storage > PersistentVolumeClaims > oc-lab-pvc in the real course console. Show the namespace, Bound status, storageClassName skills-network-learner and requested capacity 1Gi. Save the screenshot as:
+
+evidence/oc-pipelines-console-pvc-details.png
+
+## Question 6: pipeline details screenshot
+
+Capture Pipelines > Pipelines > oc-final. Show all six task nodes: cleanup, git-clone, eslint, jest, buildah, deploy. Save the screenshot as:
+
+evidence/oc-pipelines-oc-final.png
+
+## Question 7: successful pipeline screenshot
+
+Capture the actual successful PipelineRun showing all six tasks green. Include evidence of deployment/cicd-app being created in the deploy task logs, if required by the evaluator. Save the screenshot as:
+
+evidence/oc-pipelines-oc-green.png
+
+Do not upload application logs for this question. Questions 5 and 6 previously had their screenshot files swapped; verify each image before uploading.
+
+## Question 8: application logs
+
+The updated app prints SERVICERUNNING between its startup and listening messages and defaults to port 8000. Once actually deployed, run this in the course lab:
 
 ```sh
-gh auth login
-gh run list --repo rathodkiran7926-beep/CI_CD_Final_Project --workflow workflow.yml
-gh run view RUN_ID --repo rathodkiran7926-beep/CI_CD_Final_Project
-gh run view RUN_ID --repo rathodkiran7926-beep/CI_CD_Final_Project --log > evidence/github-actions-success.txt
+oc logs deployment/cicd-app | tee oc-pipeline-application-logs
 ```
 
-Replace RUN_ID with the successful run ID. The full logs should show checkout, Node.js setup, dependency installation, ESLint, Jest, coverage upload, and successful job completion. You can also download the real logs from the run's GitHub Actions page and extract the relevant job text.
-
-## OpenShift application logs
-
-Visit the application route, then capture actual logs:
-
-```sh
-oc logs deployment/cicd-final-app --tail=100 > evidence/openshift-application-logs.txt
-```
-
-The startup message and HTTP requests should appear. Paste the actual text into the assignment response.
-
-Commit and push your evidence files after capture. Screenshots and outputs are pending until you run GitHub Actions and OpenShift yourself. A passing score depends on the evaluator and the evidence you submit.
-
+Paste the real resulting text. This file has not been captured from a cluster here. Local application output and generated examples are not OpenShift evidence.

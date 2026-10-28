@@ -19,7 +19,7 @@ describe('Application HTTP endpoints', () => {
     expect(response.status).toBe(200);
     expect(response.headers.get('content-type')).toBe('application/json');
     expect(await response.json()).toEqual({
-      project: 'Coursera CI/CD Final Project',
+      project: 'ci-cd-final-project',
       message: 'Deployed with GitHub Actions, Tekton, and OpenShift'
     });
   });
